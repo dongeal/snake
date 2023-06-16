@@ -2,7 +2,7 @@ import pygame as pg # 1. 파이게임 불러오기
 import sys
 from datetime import datetime
 from datetime import timedelta
-
+import random
 
 
 pg.init()           # 2. 초기화
@@ -25,7 +25,9 @@ done = False
 clock = pg.time.Clock()
 last_moved_time = datetime.now()
 
-KEY_DIRECTION ={pg.K_UP:'N', pg.K_DOWN:'S', pg.K_LEFT:'W', pg.K_RIGHT:'E'}
+
+KEY_DIRECTION ={pg.K_UP:'N', pg.K_DOWN:'S',
+                pg.K_LEFT:'W', pg.K_RIGHT:'E'}
 
 def draw_grid():
         for x in range(FIELD_W):
@@ -36,14 +38,14 @@ def draw_grid():
 
 
 def draw_block(screen,color,position):
-    block = pg.Rect((position[0] * block_size , position[1] * block_size),
+    block = pg.Rect((position[1] * block_size , position[0] * block_size),
                     (block_size,block_size))
     pg.draw.rect(screen, color, block)
 
 
 class Snake:
     def __init__(self):
-        self.positions = [(2,0),(1,0),(0,0)] # 뱀의 위치 (2,0)이 머리
+        self.positions = [(0,2),(0,1),(0,0)] # 뱀의 위치 (2,0)이 머리
         self.direction = ''
 
     def draw(self):
@@ -54,14 +56,42 @@ class Snake:
         head_position =self.positions[0]
         y, x = head_position
         if self.direction =='N':
-            self.positions=[(y-1,x)] + self.positions[:-1]
+            if y-1 < 0 :
+                self.direction = random.choice(['W','E'])
+            else:
+                self.positions=[(y-1,x)] + self.positions[:-1]
         elif self.direction =='S':
-            self.positions=[(y+1,x)] + self.positions[:-1]
+            if y+1 > FIELD_H -1 :
+                self.direction = random.choice(['W','E'])
+            else:
+               self.positions=[(y+1,x)] + self.positions[:-1]
         elif self.direction =='W':
-            self.positions=[(y,x-1)] + self.positions[:-1]
+            if x-1 <0 :
+                self.direction = random.choice(['S','N'])
+            else:
+                self.positions=[(y,x-1)] + self.positions[:-1]
         elif self.direction =='E':
-            self.positions=[(y,x+1)] + self.positions[:-1]
-
+            if x+1 > FIELD_W-1:
+                self.direction = random.choice(['S','N'])
+            else:    
+                self.positions=[(y,x+1)] + self.positions[:-1]
+       
+        
+    
+    
+    def grow(self):
+        tail_position = self.positions[-1]
+        y, x = tail_position
+        if self.direction == 'N':
+            self.positions.append((y - 1, x))
+        elif self.direction == 'S':
+            self.positions.append((y + 1, x))
+        elif self.direction == 'W':
+            self.positions.append((y, x - 1))
+        elif self.direction == 'E':
+            self.positions.append((y, x + 1))    
+        
+ 
 class Apple:
     def __init__(self, position =(5,5)):
         self.position= position
@@ -88,13 +118,22 @@ def runGame():
             if event.type == pg.KEYDOWN:
                 if event.key in KEY_DIRECTION:
                     snake.direction = KEY_DIRECTION[event.key]  
-                    print(snake.direction)
+               
             
     # 마지막 움직인시간 에서 0.5초 보다 크면 자동으로 가던 방향으로 움직임
         if datetime.now() - last_moved_time >= timedelta(seconds=0.5):
-           snake.move
+           snake.move()
         #    last_moved_time =datetime.now() # 자동움직임 뒤에도 시간 기록
-        
+        if snake.positions[0] == apple.position:
+            snake.grow()    
+            apple.position = (random.randint(0, 19), random.randint(0, 19))
+
+        if snake.positions[0] in snake.positions[1:]:
+            done = True
+
+
+
+
         draw_grid()
         snake.draw()
         apple.draw()
