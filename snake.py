@@ -38,14 +38,14 @@ def draw_grid():
 
 
 def draw_block(screen,color,position):
-    block = pg.Rect((position[1] * block_size , position[0] * block_size),
+    block = pg.Rect((position[0] * block_size , position[1] * block_size),
                     (block_size,block_size))
     pg.draw.rect(screen, color, block)
 
 
 class Snake:
     def __init__(self):
-        self.positions = [(0,2),(0,1),(0,0)] # 뱀의 위치 (2,0)이 머리
+        self.positions = [(2,0),(1,0),(0,0)] # 뱀의 위치 (2,0)이 머리
         self.direction = ''
 
     def draw(self):
@@ -54,42 +54,42 @@ class Snake:
     
     def move(self):
         head_position =self.positions[0]
-        y, x = head_position
+        x, y = head_position
         if self.direction =='N':
             if y-1 < 0 :
                 self.direction = random.choice(['W','E'])
             else:
-                self.positions=[(y-1,x)] + self.positions[:-1]
+                self.positions=[(x, y-1)] + self.positions[:-1]
         elif self.direction =='S':
             if y+1 > FIELD_H -1 :
                 self.direction = random.choice(['W','E'])
             else:
-               self.positions=[(y+1,x)] + self.positions[:-1]
+               self.positions=[(x, y+1)] + self.positions[:-1]
         elif self.direction =='W':
             if x-1 <0 :
                 self.direction = random.choice(['S','N'])
             else:
-                self.positions=[(y,x-1)] + self.positions[:-1]
+                self.positions=[(x-1, y)] + self.positions[:-1]
         elif self.direction =='E':
             if x+1 > FIELD_W-1:
                 self.direction = random.choice(['S','N'])
             else:    
-                self.positions=[(y,x+1)] + self.positions[:-1]
+                self.positions=[(x+1, y)] + self.positions[:-1]
        
         
     
     
     def grow(self):
         tail_position = self.positions[-1]
-        y, x = tail_position
+        x, y = tail_position
         if self.direction == 'N':
-            self.positions.append((y - 1, x))
+            self.positions.append((x, y - 1))
         elif self.direction == 'S':
-            self.positions.append((y + 1, x))
+            self.positions.append((x, y + 1))
         elif self.direction == 'W':
-            self.positions.append((y, x - 1))
+            self.positions.append((x - 1, y))
         elif self.direction == 'E':
-            self.positions.append((y, x + 1))    
+            self.positions.append((x + 1, y))    
         
  
 class Apple:
